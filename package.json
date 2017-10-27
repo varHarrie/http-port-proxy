@@ -1,12 +1,17 @@
 {
   "name": "http-port-proxy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HTTP port proxying library.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
     "http-port-proxy": "./bin/index.js"
   },
+  "files": [
+    "bin",
+    "dist",
+    "src"
+  ],
   "dependencies": {
     "@types/http-proxy": "^1.12.2",
     "@types/node": "^8.0.47",
