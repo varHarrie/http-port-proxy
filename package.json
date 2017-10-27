@@ -1,0 +1,38 @@
+{
+  "name": "http-port-proxy",
+  "version": "1.0.0",
+  "description": "HTTP port proxying library.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "http-port-proxy": "./bin/index.js"
+  },
+  "dependencies": {
+    "@types/http-proxy": "^1.12.2",
+    "@types/node": "^8.0.47",
+    "http-proxy": "^1.16.2"
+  },
+  "devDependencies": {
+    "rimraf": "^2.6.2",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/varHarrie/http-port-proxy.git"
+  },
+  "keywords": [
+    "http",
+    "proxy"
+  ],
+  "author": "varHarrie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/varHarrie/http-port-proxy/issues"
+  },
+  "homepage": "https://github.com/varHarrie/http-port-proxy#readme"
+}
