@@ -6,8 +6,9 @@ export type IProxyCondition = {host?: string | RegExp, url?: string | RegExp}
 export interface IProxyTarget {
   condition?: IProxyCondition
   scheme?: string,
-  host?: string
-  port?: number
+  host?: string,
+  port?: number,
+  ws?: boolean
 }
 
 function matchString (source: string, target: string | RegExp) {
@@ -34,6 +35,23 @@ function matchCondition (req: http.IncomingMessage, condition?: IProxyCondition)
   }
 
   return true
+}
+
+function matchTarget (
+  req: http.IncomingMessage,
+  targets: IProxyTarget[],
+  ws: boolean,
+  callback: (target: IProxyTarget) => boolean
+) {
+  if (Array.isArray(targets)) {
+    for (let target of targets) {
+      if (matchCondition(req, target.condition) && (!ws || target.ws)) {
+        if (callback(target)) {
+          break
+        }
+      }
+    }
+  }
 }
 
 export type ProxyResCallback = (
@@ -74,15 +92,17 @@ export default function start (options: ProxyOptions) {
     proxy.on('error', options.onError || onError)
 
     const server = http.createServer((req, res) => {
-      if (Array.isArray(options.targets)) {
-        for (let target of options.targets) {
-          const {condition, scheme = 'http', host = 'localhost', port = 80} = target
-          if (matchCondition(req, condition)) {
-            proxy.web(req, res, {target: `${scheme}://${host}:${port}`})
-            break
-          }
-        }
-      }
+      matchTarget(req, options.targets, false, ({scheme = 'http', host = 'localhost', port = 80}) => {
+        proxy.web(req, res, {target: `${scheme}://${host}:${port}`})
+        return true
+      })
+    })
+
+    server.on('upgrade', (req, socket, head) => {
+      matchTarget(req, options.targets, true, ({host = 'localhost', port = 80}) => {
+        proxy.ws(req, socket, head, {target: `ws://${host}:${port}`})
+        return true
+      })
     })
 
     server.listen(options.port || 80, (error: any) => {

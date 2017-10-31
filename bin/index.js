@@ -14,45 +14,19 @@ if (!relativePath) {
 
 const absolutePath = path.join(process.cwd(), relativePath)
 
-function question (words) {
-  return new Promise((resolve) => {
+const option = require(absolutePath)
 
-    const interface = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    })
-
-    interface.question(words, (answer) => {
-      interface.close()
-      resolve(answer.trim().toLowerCase())
-    })
+if (option && Array.isArray(option.targets)) {
+  start(option).then((server) => {
+    console.log('Server is listening...\n')
+    for (let target of option.targets) {
+      const {host = 'localhost', port = 80, schema: _schema = 'http', ws} = target
+      const schema = ws ? `${_schema}/ws` : _schema
+      console.log(` - [${schema}] ${host}:${port}`)
+    }
+    console.log('\n------------------------------\n')
   })
+} else {
+  console.log('Options not found, exit...')
 }
 
-function run () {
-  delete require.cache[absolutePath]
-  const option = require(absolutePath)
-
-  option && start(option)
-    .then((server) => {
-      console.log()
-
-      return question([
-        '================================',
-        'Server is listening...',
-        '',
-        'R       - restart',
-        'Any key - quit',
-        '================================',
-        ''
-      ].join('\n'))
-        .then((answer) => {
-          server.close()
-          if (answer === 'r') {
-            return run()
-          }
-        })
-    })
-}
-
-run()
